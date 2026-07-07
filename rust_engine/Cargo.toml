@@ -1,0 +1,8 @@
+[package]
+name = "pwon_core"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1.35", features = ["full"] }
+thiserror = "1.0"
