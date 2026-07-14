@@ -1,69 +1,72 @@
 #[cfg(test)]
 mod tests;
 
+pub mod network_manager;
+pub mod ssh_scanner;
+pub mod ftp_scanner;
+pub mod smb_scanner;
+pub mod sql_scanner;
+
+use std::net::IpAddr;
+use std::str::FromStr;
 use std::time::Duration;
 use thiserror::Error;
 
-#[derive(Error, Debug, PartialEq)]
-pub enum DiagnosticError {
-    #[error("Target address '{0}' is empty or invalid")]
+#[derive(Error, Debug, PartialEq, Clone)]
+pub enum EngineError {
+    #[error("Invalid target format: {0}")]
     InvalidTarget(String),
     #[error("Connection timeout after {0:?}")]
     Timeout(Duration),
-    #[error("Internal engine failure")]
-    InternalError,
+    #[error("Scan failed: {0}")]
+    ActionFailed(String),
 }
 
-pub struct DiagnosticEngine {
-    target: String,
-    default_timeout: Duration,
+#[derive(Debug, Clone, PartialEq)]
+pub enum Target {
+    Ip { address: IpAddr, port: Option<u16> },
+    Hostname { name: String, port: Option<u16> },
 }
 
-impl DiagnosticEngine {
-    pub fn new(target: &str) -> Self {
-        Self {
-            target: target.to_string(),
-            default_timeout: Duration::from_millis(1500),
+impl Target {
+    pub fn parse(raw: &str) -> Result<Self, EngineError> {
+        let mut parts = raw.splitn(2, ':');
+        let host_part = parts.next().ok_or_else(|| EngineError::InvalidTarget("Empty hostname".into()))?;
+        let port_part = parts.next();
+
+        let port = match port_part {
+            Some(p) => Some(p.parse::<u16>().map_err(|_| EngineError::InvalidTarget("Invalid port number".into()))?),
+            None => None,
+        };
+
+        if let Ok(ip) = IpAddr::from_str(host_part) {
+            Ok(Target::Ip { address: ip, port })
+        } else {
+            Ok(Target::Hostname { name: host_part.to_string(), port })
         }
     }
 
-    pub async fn probe_latency(&self) -> Result<Duration, DiagnosticError> {
-        if self.target.is_empty() {
-            return Err(DiagnosticError::InvalidTarget(self.target.clone()));
+    pub fn host(&self) -> String {
+        match self {
+            Target::Ip { address, .. } => address.to_string(),
+            Target::Hostname { name, .. } => name.clone(),
         }
-
-        tokio::time::sleep(Duration::from_millis(10)).await; 
-        let latency = Duration::from_millis(12); 
-
-        Ok(latency)
     }
 
-    pub fn check_health(&self) -> bool {
-        !self.target.is_empty()
+    pub fn port(&self) -> Option<u16> {
+        match self {
+            Target::Ip { port, .. } | Target::Hostname { port, .. } => *port,
+        }
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+#[derive(Debug, PartialEq)]
+pub struct ScanResult {
+    pub latency: Duration,
+    pub success: bool,
+}
 
-    #[tokio::test]
-    async fn test_engine_initialization() {
-        let engine = DiagnosticEngine::new("8.8.8.8");
-        assert!(engine.check_health());
-    }
-
-    #[tokio::test]
-    async fn test_latency_measurement() {
-        let engine = DiagnosticEngine::new("127.0.0.1");
-        let result = engine.probe_latency().await.unwrap();
-        assert!(result.as_millis() > 0);
-    }
-
-    #[tokio::test]
-    async fn test_invalid_target() {
-        let engine = DiagnosticEngine::new("");
-        let result = engine.probe_latency().await;
-        assert!(matches!(result, Err(DiagnosticError::InvalidTarget(_))));
-    }
+#[async_trait::async_trait]
+pub trait Scanner {
+    async fn scan(&self, target: &Target) -> Result<ScanResult, EngineError>;
 }

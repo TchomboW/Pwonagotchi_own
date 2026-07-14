@@ -1,0 +1,29 @@
+[
+    {
+        "module": "ssh",
+        "target": "127.0.0.1",
+        "data": {
+            "latency_ms": 5,
+            "scanned": true
+        },
+        "confidence": 0.5
+    },
+    {
+        "module": "ssh",
+        "target": "127.0.0.1:80",
+        "data": {
+            "latency_ms": 5,
+            "scanned": true
+        },
+        "confidence": 0.5
+    },
+    {
+        "module": "ssh",
+        "target": "127.0.0.1:443",
+        "data": {
+            "latency_ms": 5,
+            "scanned": true
+        },
+        "confidence": 0.5
+    }
+]
