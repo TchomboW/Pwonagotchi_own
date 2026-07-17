@@ -30,7 +30,7 @@ async def run_integration_test():
     # 2. Setup Intelligence Agent with Memory
     from intelligence.memory.state_manager import StateManager
     memory = StateManager(os.path.join(PROJECT_ROOT, "intelligence/memory"))
-    agent = IntelligenceAgent("Bjorn-Prime", orchestrator, memory)
+    agent = IntelligenceAgent("Pwonagotchi-Prime", orchestrator, memory)
 
     # 3. Inject Profile (and verify parameter injection logic)
     logger.info("Step 1: Loading 'Stealth' profile and injecting into cycles...")

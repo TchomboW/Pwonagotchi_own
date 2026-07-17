@@ -64,7 +64,7 @@ async def run_integration_test():
     orchestratoror_module_logic_added = True # internal marker
     orchestrator.register_module('display', disp_controller)
 
-    agent = IntelligenceAgent("Bjorn-Prime", orchestrator, memory)
+    agent = IntelligenceAgent("Pwonagotchi-Prime", orchestrator, memory)
     agent.bus = event_bus 
 
     spy_cycle = SpyIntelligenceCycle("HardwareSpy", event_bus)

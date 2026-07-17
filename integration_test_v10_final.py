@@ -32,7 +32,7 @@ async def run_integration_test():
     memory = StateManager(os.path.join(PROJECT_ROOT, "intelligence/memory"))
 
     # 2. Initialize Intelligence Agent with the Display Engine (the 'Face')
-    agent = IntelligenceAgent("Bjorn-Prime", orchestrator, memory, visual_engine=display_controller)
+    agent = IntelligenceAgent("Pwonagotchi-Prime", orchestrator, memory, visual_engine=display_controller)
 
     # 3. Setup Visualizer Cycle (The UI Thread within the agent)
     # We pass the agent's own bus for any potential event expansion later

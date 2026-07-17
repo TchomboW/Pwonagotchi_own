@@ -58,7 +58,7 @@ async def run_integration_test():
     disp_controller = DisplayController()
     memory = StateManager(os.path.join(PROJECT_ROOT, "intelligence/memory"))
     event_bus = EventBus() 
-    agent = IntelligenceAgent("Bjorn-Prime", orchestrator, memory)
+    agent = IntelligenceAgent("Pwonagotchi-Prime", orchestrator, memory)
 
     orchestrator.register_module('networking', net_controller)
     orchestrator.register_module('display', disp_controller)

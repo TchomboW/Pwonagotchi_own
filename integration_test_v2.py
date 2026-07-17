@@ -29,7 +29,7 @@ async def run_integration_test():
 
     # 2. Setup Intelligence Agent and Memory
     memory = StateManager(os.path.join(PROJECT_ROOT, "intelligence/memory"))
-    agent = IntelligenceAgent("Bjorn-Prime", orchestrator, memory)
+    agent = IntelligenceAgent("Pwonagotchi-Prime", orchestrator, memory)
 
     # 3. Add a Cycle (The Observer)
     observer = NetworkStatusObserver("NetworkWatcher", orchestrator)

@@ -1,50 +1,54 @@
-# ⚔️ Bjorn Reborn: High-Performance Intelligence Agent
+# 🐉 Pwonagotchi (Optimized)
 
-Bjorn is an autonomous intelligence engine designed specifically for highly resource-constrained environments, such as the **Raspberry Pi Zero W (Pi OS 64-bit)**. It utilizes a high-performance hybrid architecture combining a **Rust core** for speed and safety with a **Python orchestration layer** for complex logic.
+**CRITICAL ATTRIBUTION:** This project is a modified and enhanced version of **[Pwnagotchi by jayofelony](https://github.com/jayofelony/pwnagotchi)**. All original credit for the foundational code, core logic, and concept goes to them. 
 
-## 🧠 Intelligence Capability: The "Scout-and-Strike" Cycle
-
-Unlike traditional scanners, Bjorn operates on an **Advanced Intelligence Cycle** (Perceive $\rightarrow$ Evaluate $\rightarrow$ Act):
-
-1.  **Perception**: Constant monitoring of network state and hardware presence (e.g., USB-Ethernet dongles).
-2.�  **Evaluation**: Analyzes current targets for high-value indicators.
-3.   **Tactical Chaining**: If a target is identified, Bjorn automatically generates follow-up sub-tasks (e.g., probing specific service ports) to expand the reconnaissance scope.
-
-## 🛡️ Tactical Profiles
-
-Bjorn can operate under different tactical postures by adjusting its timing and noise signature:
-
-| Profile | Behavior | Use Case |
-| :--- | :--- | :--- |
-| `stealth` | Long, randomized delays; low-frequency probing | Unobtrusive reconnaissance in high-security environments |
-| `standard` | Moderate pacing; standard duty cycle | General intelligence gathering |
-| `aggressive` | High-speed, rapid-fire scanning | Rapid/Tactical situational awareness |
-
-## 🛠️ Architecture & Setup
-
-### Core Components
-- **Engine (Rust)**: `pwon_core` - Handles high-performance connectivity management and low-level scanner routines.
-- **Orchestrator (Python)**: `BjornOrchestrator` - Man-in-the-middle controller managing the intelligence logic, profile switching, and target chaining.
-
-### Hardware Requirements
-- **Target**: Raspberry Pi Zero W (or any ARM64 Linux system).
-- **OS**: Pi OS 64-bit (optimized for memory/CPU constraints).
-
-### Quick Start (Local Development)
-1. **Build the Engine**:
-   ```bash
-   cd rust_engine
-   cargo build
-   ```
-2. **Run an Intelligence Cycle**:
-   ```bash
-   python3 src/interface.py --profile stealth
-   ```
-
-## 📡 Connectivity Management
-Bjorn-reborn is designed for hardware that requires manual interface switching (e.g., USB-Ethernet dongles). The `NetworkManager` module handles:
-- **Automatic Interface Detection**: Detects when an `eth0` or `enp...` device is connected.
-- **Interface Switching**: Allows the orchestrator to flip between `wlan0` and `eth0` for optimal stability/speed.
+My contributions (Pwonagotchi) include:
+- 🚀 **Architecture Optimization**: Refactoring for Raspberry Pi Zero W efficiency in a modern 64-bit environment.
+- 🛠️ **Intelligence Enhancement**: Implementing advanced trend-analysis and resource-guarding protocols.
+- ✨ **Themed Interface**: Tailoring the ecosystem into the "Pwonagotchi" identity.
 
 ---
-*Built by TchomboW. Designed for high-integrity autonomous reconnaissance.*
+
+## 🔭 Project Overview
+
+`Pwonagotci_own` is a high-performance evolution of the original Pwnagotchi ecosystem. This version is precision-tuned to extract maximum capability from the **Raspberry Pi Zero W** running a modern **64-bit OS**. It focuses on intelligent reconnaissance and automated signal intelligence.
+
+### 🌟 Key Technical Upgrades:
+- **Optimized Engine**: A high-speed Rust core (`rust_engine`) for intensive network tasks.
+- **Cognitive Intelligence**: An asynchronous Python layer capable of pattern recognition (detecting trends in memory/CPU usage).
+- **Survival Protocols**: Built-in "Circuit Breaker" logic to prevent system crashes during resource spikes.
+
+## 🏗️ Core Architecture
+
+The intelligence is organized into a high-integrity dual-layer structure:
+
+1.  **High-Speed Engine (`rust_engine/`)**: A memory-safe Rust crate handling heavy-duty scanning and low-level connectivity.
+2.  **Intelligence Orchestrator (`core/` & `intelligence/`)**: An asynchronous Python framework that manages the cognitive cycles and sensory feedback loops.
+
+## 🚀 Installation & Deployment
+
+### 1. Prerequisites
+- A fresh installation of **Raspberry Pi OS (64-bit)** on your Raspberry Pi Zero W.
+
+### 2. Quick Start (Local Development)
+
+```bash
+# Clone the repository
+git clone https://github.com/TchomboW/Pwonagotci_own.git ~/Pwonagotci_own
+cd ~/Pwonagotci_own
+
+# Build the Rust core
+cd rust_engine
+cargo build --release
+cd ..
+
+# Run the main engine
+python3 interface.py
+```
+
+## 🛠️ Hardware Requirements
+- **Target**: Raspberry Pi Zero W (Optimized for ARM64/64-bit architecture).
+- **Interface**: SPI protocol for high-precision hardware interaction.
+
+---
+*Built by TchomboW. Based on the amazing work of jayofelony.*

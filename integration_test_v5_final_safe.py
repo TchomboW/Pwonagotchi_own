@@ -62,7 +62,7 @@ async def run_integration_test():
 
     from intelligence.memory.state_manager import StateManager
     memory = StateManager(os.path.join(PROJECT_ROOT, "intelligence/memory"))
-    agent = IntelligenceAgent("Bjorn-Prime", orchestrator, memory)
+    agent = IntelligenceAgent("Pwonagotchi-Prime", orchestrator, memory)
 
     event_bus = EventBus() 
     agent.bus = event_bus 
