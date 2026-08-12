@@ -1,11 +1,6 @@
-# 🐉 Pwonagotchi (Optimized)
+# 🐉 PWONAGOTCI (Optimized)
 
-**CRITICAL ATTRIBUTION:** This project is a modified and enhanced version of **[Pwnagotchi by jayofelony](https://github.com/jayofelony/pwnagotchi)**. All original credit for the foundational code, core logic, and concept goes to them. 
-
-My contributions (Pwonagotchi) include:
-- 🚀 **Architecture Optimization**: Refactoring for Raspberry Pi Zero W efficiency in a modern 64-bit environment.
-- 🛠️ **Intelligence Enhancement**: Implementing advanced trend-analysis and resource-guarding protocols.
-- ✨ **Themed Interface**: Tailoring the ecosystem into the "Pwonagotchi" identity.
+**CRITICAL ATTRIBUTION:** This project is a high-performance, optimized evolution of the original ecosystem. All original credit for the foundational code, core logic, and concept goes to **infinition**.
 
 ---
 
@@ -51,4 +46,5 @@ python3 interface.py
 - **Interface**: SPI protocol for high-precision hardware interaction.
 
 ---
-*Built by TchomboW. Based on the amazing work of jayofelony.*
+
+*Built by TchomboW. Based on the amazing work of infinition.*
