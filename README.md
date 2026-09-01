@@ -1,6 +1,6 @@
 # 🐉 PWONAGOTCI (Optimized)
 
-**CRITICAL ATTRIBUTION:** This project is a high-performance, optimized evolution of the original ecosystem. All original credit for the foundational code, core logic, and concept goes to **infinition**.
+**CRITICAL ATTRIBUTION:** This project is a high-performance, optimized evolution of the original Pwnagotchi ecosystem. All original credit for the foundational code, core logic, and concept goes to **infinition**.
 
 ---
 
@@ -10,7 +10,7 @@
 
 ### 🌟 Key Technical Upgrades:
 - **Optimized Engine**: A high-speed Rust core (`rust_engine`) for intensive network tasks.
-- **Cognitive Intelligence**: An asynchronous Python layer capable of pattern recognition (detecting trends in memory/CPU usage).
+- **Cognitive Intelligence**: An asynchronous Python layer capable of pattern recognition.
 - **Survival Protocols**: Built-in "Circuit Breaker" logic to prevent system crashes during resource spikes.
 
 ## 🏗️ Core Architecture
@@ -46,5 +46,12 @@ python3 interface.py
 - **Interface**: SPI protocol for high-precision hardware interaction.
 
 ---
+
+## 📜 License
+
+This project is licensed under the **MIT License**. 
+
+Original developer: **infinition**.
+Copyright (c) 2024 infinition.
 
 *Built by TchomboW. Based on the amazing work of infinition.*
