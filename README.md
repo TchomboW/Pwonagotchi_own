@@ -51,7 +51,7 @@ python3 interface.py
 
 This project is licensed under the **MIT License**. 
 
-Original developer: **infinition**.
+Original developer: **infinition**
 Copyright (c) 2024 infinition.
 
 *Built by TchomboW. Based on the amazing work of infinition.*
