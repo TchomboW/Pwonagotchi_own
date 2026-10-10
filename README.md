@@ -1,8 +1,10 @@
 # 🐉 PWONAGOTCI (Optimized)
 
-**CRITICAL ATTRIBUTION:** This project is a high-performance, optimized evolution of the original Pwnagotchi ecosystem. All original credit for the foundational code, core logic, and concept goes to **infinition**.
+## ⚖️ License & Attribution
 
----
+This project is a high-performance, optimized evolution of the **Bjorn** ecosystem.
+All original credit for the foundational code, core-logic, and concept goes to the **infinition/Bjorn** project.
+The original Bjorn license is included in the `LICENSE` file.
 
 ## 🔭 Project Overview
 
@@ -44,14 +46,3 @@ python3 interface.py
 ## 🛠️ Hardware Requirements
 - **Target**: Raspberry Pi Zero W (Optimized for ARM64/64-bit architecture).
 - **Interface**: SPI protocol for high-precision hardware interaction.
-
----
-
-## 📜 License
-
-This project is licensed under the **MIT License**. 
-
-Original developer: **infinition**
-Copyright (c) 2024 infinition.
-
-*Built by TchomboW. Based on the amazing work of infinition.*
