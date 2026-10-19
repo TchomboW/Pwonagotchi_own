@@ -1,8 +1,13 @@
 import asyncio
 import os
 import json
+import time
+import logging
+
+logger = logging.getLogger("pwonagotchi.interface")
 
 class IntelligenceResult:
+    """Standardized intelligence observation container."""
     def __init__(self, source_module, target, data, confidence=0.5):
         self.source_module = source_module
         self.target = target
@@ -18,59 +23,86 @@ class IntelligenceResult:
         }
 
 class PwonagotchiOrchestrator:
+    """
+    Crash-resilient orchestrator bridging Python intelligence logic with the Rust core engine.
+    Implements exponential backoff and subprocess timeouts similar to Oxigotchi/AngryOxide.
+    """
     def __init__(self, bin_path: str, history_file: str = "intelligence_accumulated.json"):
-        self.bin_path = bin_path
+        self.bin_path = os.path.abspath(bin_path)
         self.history_file = history_file
         if not os.path.exists(self.bin_path):
             raise FileNotFoundError(f"Rust engine binary not found at {self.bin_path}")
+        
         self.active_interface = "unknown"
         self.intelligence_log = []
+        self.crash_count = 0
+        self.backoff_delay = 5  # Start at 5 seconds
+        self.max_backoff = 300  # Cap at 5 minutes (Oxigotchi standard)
 
-    async def _execute(self, args: list[str]) -> tuple[bool, str]:
+    async def _execute(self, args: list, timeout: int = 30) -> tuple[bool, str]:
+        """Execute Rust engine with timeout and decode output."""
         cmd = [self.bin_path] + args
-        process = await asyncio.create_subprocess_exec(
-            *cmd,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
-        )
-        stdout, stderr = await process.communicate()
-        out = stdout.decode().strip()
-        err = stderr.decode().strip()
+        try:
+            process = await asyncio.create_subprocess_exec(
+                *cmd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            stdout, stderr = await asyncio.wait_for(
+                process.communicate(), timeout=timeout
+            )
+            out = stdout.decode().strip()
+            err = stderr.decode().strip()
 
-        if process.returncode == 0:
-            return True, out
-        else:
-            return False, f"{err} {out}".strip()
+            if process.returncode == 0:
+                self.crash_count = 0  # Reset backoff on success
+                return True, out
+            else:
+                return False, f"{err} {out}".strip()
+        except asyncio.TimeoutError:
+            return False, "Engine subprocess timed out"
+        except Exception as e:
+            return False, f"Subprocess execution error: {e}"
+
+    async def _get_with_retry(self, args: list, timeout: int = 10) -> tuple[bool, str]:
+        """Attempt execution with exponential backoff if the engine is unstable."""
+        success, output = await self._execute(args, timeout)
+        if not success and self.crash_count < 5:
+            self.crash_count += 1
+            logger.warning(f"engine failed (attempt {self.crash_count}). waiting {self.backoff_delay}s")
+            await asyncio.sleep(self.backoff_delay)
+            self.backoff_delay = min(self.backoff_delay * 2, self.max_backoff)
+            return await self._execute(args, timeout)
+        return success, output
 
     async def get_network_state(self) -> str:
-        success, output = await self._execute(["network", "wifi"])
+        success, output = await self._get_with_retry(["network", "wifi"])
         self.active_interface = "wlan0" if success else "eth0"
         return self.active_interface
 
     async def switch_network(self, mode: str) -> bool:
-        print(f"[Pwonagotchi] 🔄 LOG: Initiating physical switch to [{mode}]...")
-        success, output = await self._execute(["network", mode])
+        logger.info(f"Initiating network switch to [{mode}]...")
+        success, output = await self._get_with_retry(["network", mode])
         if success:
             self.active_interface = "wlan0" if mode == "wifi" else "eth0"
-            print(f"[Pwonagotchi] ✅ LOG: Network transition successful. Current: {self.active_interface}")
+            logger.info(f"Network transition successful. Current: {self.active_interface}")
             return True
         else:
-            print(f"[Bjron] ❌ LOG: Network transition failed! -> {output}")
+            logger.error(f"Network transition failed! -> {output}")
             return False
 
     async def connectivity_heartbeat(self) -> bool:
-        print("[Pwonagotchi] ❤️ LOG: Running heart-beat (Connectivity Check)...")
         if self.active_interface == "unknown":
             return False
         return True
 
     async def emergency_fallback(self):
-        print("[Pwonagotchi] 🚨 ALERT: Emergency Protocol Triggered! Reverting to Safety Loopback (WiFi)...")
+        logger.warning("Emergency Protocol Triggered! Reverting to Safety Loopback (WiFi)...")
         await self.switch_network("wifi")
 
     async def perform_scan(self, module: str, target: str) -> dict:
-        print(f"[Pwonagotchi] 🔍 SCOUT: Scanning {module} on {target}...")
-        success, output = await self._execute([module, target])
+        logger.info(f"Scanning {module} on {target}...")
+        success, output = await self._get_with_retry([module, target])
         if not success:
             return {"status": "error", "message": output}
 
@@ -87,63 +119,59 @@ class PwonagotchiOrchestrator:
             return {"status": "error", "message": f"Parse error: {output}"}
 
     async def load_intelligence_history(self):
-        print("[Pwonagotchi] 📥 LOG: Loading historical intelligence data...")
+        logger.info("Loading historical intelligence data...")
         if os.path.exists(self.history_file):
             try:
                 with open(self.history_file, 'r') as f:
                     self.intelligence_log = json.load(f)
-                print(f"[Pwonagotchi] ✅ LOG: Loaded {len(self.intelligence_log)} historical records.")
+                logger.info(f"Loaded {len(self.intelligence_log)} historical records.")
             except Exception as e:
-                print(f"[Bjron] ❌ LOG: Failed to load history: {e}")
+                logger.error(f"Failed to load history: {e}")
         else:
-            print("[Pwonagotchi] ℹ️ LOG: No history file found. Starting fresh intelligence state.")
+            logger.info("No history file found. Starting fresh intelligence state.")
 
     async def save_intelligence_history(self):
-        print(f"[Pwonagotchi] 💾 LOG: Persisting {len(self.intelligence_log)} intelligence records to disk...")
+        logger.info(f"Persisting {len(self.intelligence_log)} intelligence records to disk...")
         try:
             with open(self.history_file, 'w') as f:
                 json.dump(self.intelligence_log, f, indent=4)
-            print("[Pwonagotchi] ✅ LOG: History persistence complete.")
+            logger.info("History persistence complete.")
         except Exception as e:
-            print(f"[Bjron] ❌ LOG: Failed to save history: {e}")
+            logger.error(f"Failed to save history: {e}")
 
     async def run_intelligence_cycle(self, seed_targets: list[str], iterations: int = 3):
-        print(f"\n[Pwonagotchi] 🚀 STARTING ADVANCED INTELLIGENCE CYCLE (V2 - Persistent) ---")
+        logger.info("STARTING ADVANCED INTELLIGENCE CYCLE")
         await self.get_network_state()
 
         for i in range(iterations):
-            print(f"\n[Cycle {i+1}/{iterations}] Assessing environment...")
+            logger.info(f"Cycle {i+1}/{iterations}: Assessing environment...")
             if not await self.connectivity_heartbeat():
                 await self.emergency_fallback()
 
             target = seed_targets[i % len(seed_targets)]
             result = await self.perform_scan("ssh", target)
-            print(f"[Pwonagotchi] 📊 Result: {result}")
-
             if result["status"] == "success":
-                print("[Pwonagotchi] ✨ VALUATION: High-Value Target Detected!")
+                logger.info(f"High-Value Target Detected on {target}")
                 if "127.0.0" in target:
                     new_chain = [f"{target}:80", f"{target}:443"]
-                    print(f"[Bjron] 🔗 CHAINING: New potential assets found! Injecting: {new_chain}")
+                    logger.info(f"Chaining new assets: {new_chain}")
                     seed_targets.extend(new_chain)
                 await asyncio.sleep(0.5)
             else:
-                print("[Pwonagotchi] 🔎 INFO: No actionable intelligence found.")
+                logger.info("No actionable intelligence found.")
 
-        print("\n[Pwonagotchi] 🏁 INTELLIGENCE CYCLE COMPLETE ---")
+        logger.info("INTELLIGENCE CYCLE COMPLETE")
 
-if __name__ == "__main__':
-    import os
+if __name__ == "__main__":
+    import sys
+
     async def main_test():
-        # Use absolute path via dirname to be foolproof.
         current_dir = os.path.dirname(os.path.abspath(__file__))
-        engine_path = os.path.join(current_dir, "..", "rust_engine", "target", "debug", "pwon_core")
-        # Resolve the relative path to an absolute one for runtime stability.
+        # Point to release binary as per standard Oxigotchi production builds
+        engine_path = os.path.join(current_dir, "..", "rust_engine", "target", "release", "pwon_core")
         engine_path = os.path.abspath(engine_path)
 
-        orchestrator = PwonagotchiOrch-simulated logic here's construction... (re-running with fixed variables)
-        # Wait, I will just define it directly to avoid any chance of more failures in this high-stress turn.
-        orchestrator = PwonagotchiOrchestrator("/Users/tony/Pwonagotchi_own/rust_engine/target/debug/pwon_core")
+        orchestrator = PwonagotchiOrchestrator(engine_path)
         await orchestrator.load_intelligence_history()
         await orchestrator.run_intelligence_cycle(["127.0.0.1"])
         await orchestrator.save_intelligence_history()

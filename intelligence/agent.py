@@ -1,26 +1,32 @@
+import asyncio
 import logging
 from typing import List, Any, Dict, Optional
+from core.event_bus import EventBus
 
 class IntelligenceAgent:
     """
-    The high-level cognitive entity of Pwonagotchi_own.
-    Acts as a supervisor for intelligence cycles and manages the 
-    intersection of reasoning, memory, and environmental interaction.
+    Reactive cognitive entity for Pwonagotchi_own. 
+    Uses EventBus for decoupled communication and implements safety checks
+    for long-running intelligence cycles (Oxigotchi-inspired resilience).
     """
 
-    def __init__(self, name: str, orchestrator: Any, memory_manager: Any, visual_engine: Optional[Any] = None):
+    def __init__(self, name: str, orchestrator: Any, memory_manager: Any, event_bus: EventBus, visual_engine: Optional[Any] = None):
         self.name = name
         self.orchestrator = orchestrator
         self.memory = memory_manager
-        self.visual_engine = visual_engine  # The new 'Face' of the agent
+        self.event_bus = event_bus
+        self.visual_engine = visual_engine
         self.logger = logging.getLogger(f"intelligence.{name}")
         self.active_cycles: List[Any] = []
         self.current_profile = None
+        self.is_alive = True
+
+        # Register for system-wide events
+        self.event_bus.subscribe("system.shutdown", self.on_system_shutdown)
 
     def add_cycle(self, cycle: Any):
         """Registers a new cognitive process (Intelligence Cycle) into the agent."""
         if self.current_profile:
-            # Pass and synchronize profile parameters to the new cycle immediately
             cycle.apply_parameters(self.current_profile.get_parameters())
         self.active_cycles.append(cycle)
         self.logger.info(f"Cycle '{cycle.name}' added to agent mapping.")
@@ -42,32 +48,50 @@ class IntelligenceAgent:
             cycle.start()
         self.logger.info("Intelligence engine is fully awake.")
 
-    def stop_all(self):
-        """Safely shuts down all active cycles."""
+    async def stop_all(self):
+        """Safely shuts down all active cycles and notifies the event bus."""
         self.logger.info("Shutting down intelligence processes...")
+        self.is_alive = False
         for cycle in self.active_cycles:
-            cycle.stop()
+            await cycle.stop()
+        await self.event_bus.publish("intelligence.stopped", {"agent": self.name})
         self.logger.info("Intelligence engine is offline.")
+
+    def on_system_shutdown(self, data: Any):
+        """EventBus callback to gracefully handle system-wide shutdown signals."""
+        self.logger.warning("Received system shutdown signal!")
+        self.is_alive = False
 
     async def pulse(self):
         """The fundamental heartbeat of the agent. 
         Iterates through all active cycles, performing an Observe-Reflect loop.
+        Publishes state updates to the EventBus for other modules to consume.
         """
+        if not self.is_alive:
+            return
+
         for cycle in self.active_cycles:
-            # Check if cycle is running (using boolean check as per updated property logic)
             if not cycle.is_running():
                 continue
             
-            # Step 1: Observe (Sensor/Environment polling)
-            observation = await cycle.observe()
-            
-            # Step 2: Reflect (Decision-making and reasoning-based state change)
-            await cycle.reflect(observation)
+            try:
+                # Step 1: Observe (Sensor/Environment polling)
+                observation = await cycle.observe()
+                
+                # Step 2: Reflect (Decision-making and reasoning-based state change)
+                await cycle.reflect(observation)
+            except Exception as e:
+                self.logger.error(f"Cycle '{cycle.name}' crashed during pulse: {e}")
+                # Self-healing: restart the specific cycle
+                await cycle.stop()
+                await cycle.start()
 
         # Step 3: Visual Synchronization
-        # After the thought process completes, update the physical 'face' of the agent
         if self.visual_engine:
             await self.visual_engine.sync_state(self)
+
+        # Notify the system that a pulse has completed
+        await self.event_bus.publish("agent.pulse_complete", {"agent": self.name, "cycles_active": len(self.active_cycles)})
 
     def learn(self, key: str, insight: Dict[str, Any]):
         """The primary mechanism for an agent to internalize new knowledge."""
@@ -77,7 +101,7 @@ class IntelligenceAgent:
     def recall(self, key: str) -> Dict[str, Any]:
         """Retrieves a previously learned piece of intelligence."""
         data = self.memory.get_state(key)
-        self.logger.info(f"Agent recalled intelligence for '{key}': {data}")
+        self.logger.info(f"Agent recalled intelligence for '{key}'")
         return data
 
     def execute_action(self, category: str, action: str, **kwargs):
