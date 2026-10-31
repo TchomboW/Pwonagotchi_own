@@ -1,4 +1,4 @@
-# 🐉 PWONAGOTCI (Optimized)
+# 🐉 Pwonagotchi_own (Optimized)
 
 ## ⚖️ License & Attribution
 
@@ -8,12 +8,14 @@ The original Bjorn license is included in the `LICENSE` file.
 
 ## 🔭 Project Overview
 
-`Pwonagotci_own` is a high-performance evolution of the original Pwnagotchi ecosystem. This version is precision-tuned to extract maximum capability from the **Raspberry Pi Zero W** running a modern **64-bit OS**. It focuses on intelligent reconnaissance and automated signal intelligence.
+`Pwonagotchi_own` is a high-performance evolution of the original Pwnagotchi ecosystem. This version is precision-tuned to extract maximum capability from the **Raspberry Pi Zero W** running a modern **64-bit OS**. It focuses on intelligent reconnaissance and automated signal intelligence.
 
 ### 🌟 Key Technical Upgrades:
 - **Optimized Engine**: A high-speed Rust core (`rust_engine`) for intensive network tasks.
 - **Cognitive Intelligence**: An asynchronous Python layer capable of pattern recognition.
 - **Survival Protocols**: Built-in "Circuit Breaker" logic to prevent system crashes during resource spikes.
+- **Unified Async Architecture**: Fully resolved async/sync mismatches across the Python orchestrator and Rust runtime.
+- **Externalized Configuration**: Credentials and engine parameters managed via `config.json`.
 
 ## 🏗️ Core Architecture
 
@@ -31,8 +33,8 @@ The intelligence is organized into a high-integrity dual-layer structure:
 
 ```bash
 # Clone the repository
-git clone https://github.com/TchomboW/Pwonagotci_own.git ~/Pwonagotci_own
-cd ~/Pwonagotci_own
+git clone https://github.com/TchomboW/Pwonagotchi_own.git ~/Pwonagotchi_own
+cd ~/Pwonagotchi_own
 
 # Build the Rust core
 cd rust_engine
