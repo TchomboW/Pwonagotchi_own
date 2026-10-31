@@ -1,0 +1,36 @@
+{
+    "engine": {
+        "rust_binary_path": "rust_engine/target/release/pwon_core",
+        "subprocess_timeout_seconds": 30,
+        "max_crash_retries": 5
+    },
+    "intelligence": {
+        "cycle_interval_seconds": 5,
+        "history_file": "intelligence_accumulated.json",
+        "seed_targets": [
+            "127.0.0.1"
+        ]
+    },
+    "scanners": {
+        "ssh": {
+            "username": "root",
+            "password": "changeme"
+        },
+        "ftp": {
+            "username": "ftp",
+            "password": "changeme"
+        },
+        "smb": {
+            "username": "admin",
+            "password": "changeme"
+        },
+        "sql": {
+            "username": "sa",
+            "password": "changeme"
+        }
+    },
+    "logging": {
+        "level": "INFO",
+        "file": null
+    }
+}

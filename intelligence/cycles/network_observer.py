@@ -8,10 +8,9 @@ class NetworkStatusObserver(BaseIntelligenceCycle):
     """
 
     async def observe(self):
-        # Fetch the current interface from the networking module via the orchestrator
         net = self.orchestrator.get_module('networking')
         if net:
-            return net.get_active_interface()
+            return await net.get_active_interface()
         return "unknown"
 
     async def reflect(self, observation: str):

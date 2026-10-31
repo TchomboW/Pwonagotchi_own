@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from typing import Dict, Any
 
@@ -50,7 +51,7 @@ class EngineOrchestrator:
         self._is_running = False
         self.logger.info("Engine Orchestrator stopped.")
 
-    def dispatch(self, category: str, action: str, **kwargs):
+    async def dispatch(self, category: str, action: str, **kwargs):
         """Dispatches a high-level command to a specific module category."""
         if not self._is_running:
             self.logger.error(f"Cannot dispatch '{action}' in '{category}': Engine is not running.")
@@ -65,6 +66,9 @@ class EngineOrchestrator:
             method = getattr(module, action)
             if callable(method):
                 result = method(**kwargs)
+                # Await coroutines (async methods)
+                if asyncio.iscoroutine(result):
+                    result = await result
                 self.logger.info(f"Dispatched: {category}.{action} -> Result: {result}")
                 return result
             else:

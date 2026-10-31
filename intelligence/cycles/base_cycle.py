@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 class BaseIntelligenceCycle(ABC):
     """
     The base interface for all intelligence-driven processes in Pwonagotchi_own.
-    A cycle is responsible for observing the environment and performing reasoning 
+    A cycle is responsible for observing the environment and performing reasoning
     to trigger actions via an orchestrator.
     """
 
@@ -30,11 +30,13 @@ class BaseIntelligenceCycle(ABC):
         self.parameters.update(params)
         self.logger.info(f"Parameters updated for {self.name}: {params}")
 
-    def start(self):
+    async def start(self):
+        """Start the intelligence cycle."""
         self._is_active = True
         self.logger.info(f"Cycle '{self.name}' started.")
 
-    def stop(self):
+    async def stop(self):
+        """Stop the intelligence cycle."""
         self._is_active = False
         self.logger.info(f"Cycle '{self.name}' stopped.")
 

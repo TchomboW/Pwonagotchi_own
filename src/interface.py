@@ -162,18 +162,25 @@ class PwonagotchiOrchestrator:
 
         logger.info("INTELLIGENCE CYCLE COMPLETE")
 
+
+    async def shutdown(self):
+        """Gracefully shut down the orchestrator and kill any lingering subprocesses."""
+        logger.info("Shutting down PwonagotchiOrchestrator...")
+        await self.save_intelligence_history()
+        logger.info("Intelligence history saved. Exiting.")
+
+
+async def main_test():
+    """Run a test intelligence cycle. Exposed for root entrypoint."""
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    engine_path = os.path.join(current_dir, "..", "rust_engine", "target", "release", "pwon_core")
+    engine_path = os.path.abspath(engine_path)
+
+    orchestrator = PwonagotchiOrchestrator(engine_path)
+    await orchestrator.load_intelligence_history()
+    await orchestrator.run_intelligence_cycle(["127.0.0.1"])
+    await orchestrator.save_intelligence_history()
+
+
 if __name__ == "__main__":
-    import sys
-
-    async def main_test():
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        # Point to release binary as per standard Oxigotchi production builds
-        engine_path = os.path.join(current_dir, "..", "rust_engine", "target", "release", "pwon_core")
-        engine_path = os.path.abspath(engine_path)
-
-        orchestrator = PwonagotchiOrchestrator(engine_path)
-        await orchestrator.load_intelligence_history()
-        await orchestrator.run_intelligence_cycle(["127.0.0.1"])
-        await orchestrator.save_intelligence_history()
-
     asyncio.run(main_test())

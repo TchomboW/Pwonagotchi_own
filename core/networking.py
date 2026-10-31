@@ -65,6 +65,30 @@ class NetworkingManager:
             logger.error(f"Failed to set {self.primary_iface} to {state}: {output}")
             return False
 
+    async def switch_to_wifi(self) -> bool:
+        """Switch the primary interface to managed WiFi mode."""
+        success, _ = await self._run_cmd(["nmcli", "device", "set", self.primary_iface, "managed", "yes"])
+        if success:
+            self.current_mode = "managed"
+            logger.info(f"Interface {self.primary_iface} set to WiFi managed mode.")
+            return True
+        return False
+
+    async def get_active_interface(self) -> str:
+        """Return current active interface state/mode for intelligence observation."""
+        # Return "wifi" if in managed (WiFi) mode, "ethernet" if wired, otherwise interface name
+        if self.current_mode == "managed":
+            return "wifi"
+        elif self.current_mode == "ethernet":
+            return "ethernet"
+        return self.primary_iface
+
+    async def switch_to_ethernet(self) -> bool:
+        """Simulate switching to ethernet (mostly logging in managed WiFi context)."""
+        self.current_mode = "ethernet"
+        logger.info(f"Interface {self.primary_iface} marked for ethernet mode.")
+        return True
+
     async def get_mac_address(self) -> Optional[str]:
         """Retrieve the MAC address of the primary interface."""
         success, output = await self._run_cmd(["ip", "link", "show", self.primary_iface])
@@ -83,4 +107,8 @@ class NetworkingManager:
         await self.toggle_interface("down")
         await asyncio.sleep(1)
         return await self.toggle_interface("up")
+
+
+# Compatibility alias for integration tests and legacy imports
+NetworkController = NetworkingManager
 
