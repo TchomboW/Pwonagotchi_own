@@ -1,0 +1,3 @@
+# Pwonagotchi_own Python Dependencies (Pi Zero W Optimized)
+pillow>=9.0.0
+# No pandas or numpy to save RAM! Standard library only (csv, asyncio, json)
