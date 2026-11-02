@@ -1,0 +1,51 @@
+name: Rust CI
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'rust_engine/**'
+      - '.github/workflows/rust-ci.yml'
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: 'rust_engine/ -> target/'
+
+      - name: Check formatting
+        run: |
+          cd rust_engine
+          cargo fmt -- --check
+
+      - name: Clippy lint
+        run: |
+          cd rust_engine
+          cargo clippy -- -D warnings
+
+      - name: Build release
+        run: |
+          cd rust_engine
+          cargo build --release
+
+      - name: Run tests
+        run: |
+          cd rust_engine
+          cargo test
+
+      - name: Verify binary
+        run: |
+          ls -lh rust_engine/target/release/pwon_core
+          file rust_engine/target/release/pwon_core

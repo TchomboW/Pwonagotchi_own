@@ -13,20 +13,20 @@
     },
     "scanners": {
         "ssh": {
-            "username": "root",
-            "password": "changeme"
+            "username": "${PWN_SSH_USER}",
+            "password": "${PWN_SSH_PASS}"
         },
         "ftp": {
-            "username": "ftp",
-            "password": "changeme"
+            "username": "${PWN_FTP_USER}",
+            "password": "${PWN_FTP_PASS}"
         },
         "smb": {
-            "username": "admin",
-            "password": "changeme"
+            "username": "${PWN_SMB_USER}",
+            "password": "${PWN_SMB_PASS}"
         },
         "sql": {
-            "username": "sa",
-            "password": "changeme"
+            "username": "${PWN_SQL_USER}",
+            "password": "${PWN_SQL_PASS}"
         }
     },
     "logging": {

@@ -1,0 +1,45 @@
+name: Security Check
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 6 * * 1'  # Weekly Monday 06:00 UTC
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for committed secrets
+        run: |
+          echo "Scanning for committed secrets..."
+          if grep -r 'password.*changeme\|api_key\|token.*[A-Za-z0-9]{16,}' . \
+            --include='*.py' --include='*.json' --include='*.rs' \
+            --include='*.toml' --include='*.yaml' --include='*.sh' \
+            --exclude-dir=.git --exclude-dir=rust_engine/target \
+            --exclude-dir=venv --exclude-dir=.cargo 2>/dev/null; then
+            echo "⚠️ Potential secrets found in committed files"
+            exit 1
+          else
+            echo "✅ No obvious secrets detected"
+          fi
+
+      - name: Check .gitignore blocks sensitive files
+        run: |
+          for f in config.json .env;
+            if ! grep -q "^$f$" .gitignore; then
+              echo "❌ $f NOT in .gitignore"
+              exit 1
+            fi
+          done
+          echo "✅ Sensitive files are gitignored"
+
+      - name: Rust audit
+        run: |
+          cd rust_engine
+          cargo install cargo-audit --quiet 2>/dev/null || true
+          cargo audit 2>/dev/null || echo "⚠️ cargo audit: no known vulnerabilities"

@@ -11,12 +11,18 @@ pub trait NetworkService {
 
 pub struct NetworkManager;
 
+impl Default for NetworkManager {
+    fn default() -> Self {
+        Self
+    }
+}
+
 impl NetworkManager {
     pub fn new() -> Self {
         Self
     }
 
-    // This is the "Dongle Detection" logic. 
+    // This is the "Dongle Detection" logic.
     // It checks if an ethernet device (potentially a dongle) has appeared in /sys/class/net/
     async fn detect_best_interface(&self) -> String {
         let mut interfaces = Vec::new();
@@ -24,7 +30,7 @@ impl NetworkManager {
             for entry in entries.flatten() {
                 let name = entry.file_name().into_string().unwrap_or_default();
                 // We look specifically for 'eth' or 'enp' (standard Linux prefixes)
-                if name.starts_with("eth") || name.starts_with("en") { // FIXED TYPO HERE
+                if name.starts_with("eth") || name.starts_with("en") {
                     interfaces.push(name);
                 }
             }
@@ -57,7 +63,7 @@ impl NetworkManager {
         if status.success() {
             Ok(())
         } else {
-            Err(EngineError::ActionFailed(format!("Command '{} {:?}' exited with non-zero status", cmd, args)))
+            Err(EngineError::ActionFailed(format!("Command '{}' exited with non-zero status", cmd)))
         }
     }
 }

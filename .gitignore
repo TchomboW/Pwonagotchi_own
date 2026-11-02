@@ -1,1 +1,29 @@
+# Build artifacts
 rust_engine/target/
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+.venv/
+venv/
+
+# Credentials & secrets
+config.json
+config.local.json
+
+# Runtime data
+intelligence_accumulated.json
+intelligence/memory/*.json
+!intelligence/memory/.gitkeep
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/
+.idea/
+
+.env
